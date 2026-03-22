@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { supabase, Resource } from '@/lib/supabase'
 import ResourceCard from './ResourceCard'
 
-export default function ResourceFeed({ refreshKey }: { refreshKey: number }) {
+export default function ResourceFeed({ refreshKey, activeTag }: { refreshKey: number; activeTag: string | null }) {
   const [resources, setResources] = useState<Resource[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -46,17 +46,19 @@ export default function ResourceFeed({ refreshKey }: { refreshKey: number }) {
     return <p className="text-red-400 text-sm">Failed to load resources: {error}</p>
   }
 
-  if (resources.length === 0) {
+  const filtered = activeTag ? resources.filter(r => r.tag === activeTag) : resources
+
+  if (filtered.length === 0) {
     return (
       <p className="text-zinc-500 text-sm text-center py-12">
-        No resources yet. Be the first to drop one.
+        {resources.length === 0 ? 'No resources yet. Be the first to drop one.' : `No ${activeTag} resources yet.`}
       </p>
     )
   }
 
   return (
     <div className="space-y-3">
-      {resources.map(r => (
+      {filtered.map(r => (
         <ResourceCard key={r.id} resource={r} />
       ))}
     </div>
